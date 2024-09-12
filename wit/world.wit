@@ -14,5 +14,6 @@ import packet-looper;
 world control-center {
 include wasmcloud:component/imports;
 
+export wasi:http/incoming-handler@0.2.0;
 import packet-looper;
 }
