@@ -1,0 +1,18 @@
+package wasmcloud:lwc;
+
+interface packet-looper {
+process: func(packet: u64, ttl: u64, chaos: u16, route: option<string>);
+}
+
+world probe {
+include wasmcloud:component/imports;
+
+export packet-looper;
+import packet-looper;
+}
+
+world control-center {
+include wasmcloud:component/imports;
+
+import packet-looper;
+}
