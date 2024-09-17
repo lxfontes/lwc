@@ -25,9 +25,21 @@ type blastResponse struct {
 }
 
 func blastHandler(w http.ResponseWriter, r *http.Request) {
-	rawTtl := r.URL.Query().Get("ttl")
-	if rawTtl == "" {
-		rawTtl = "100"
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "invalid query params", http.StatusBadRequest)
+		return
+	}
+
+	// Determine route
+	route := "default"
+	if v := r.FormValue("route"); v != "" {
+		route = v
+	}
+
+	// Determine ttl ( time to live )
+	rawTtl := "100"
+	if v := r.FormValue("ttl"); v != "" {
+		rawTtl = v
 	}
 	ttl, err := strconv.ParseUint(rawTtl, 10, 64)
 	if err != nil {
@@ -35,9 +47,10 @@ func blastHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rawChaos := r.URL.Query().Get("chaos")
-	if rawChaos == "" {
-		rawChaos = "0"
+	// Determine chaos
+	rawChaos := "0"
+	if v := r.FormValue("chaos"); v != "" {
+		rawChaos = v
 	}
 	chaos, err := strconv.ParseUint(rawChaos, 10, 16)
 	if err != nil {
@@ -45,12 +58,10 @@ func blastHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	route := r.URL.Query().Get("route")
-	if route == "" {
-		route = "default"
-	}
-
+	// Generate a unique packet identifier
 	packetId := time.Now().UnixNano()
+
+	// Inject packet into the system
 	packetlooper.Process(uint64(packetId), ttl, uint16(chaos), cm.Some(route))
 
 	resp := blastResponse{

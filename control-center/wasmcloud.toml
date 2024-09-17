@@ -5,7 +5,7 @@ version = "0.1.0"
 path = "../"
 
 [component]
-build_command = "/Users/lucas/code/bin/tinygo build -target=wasip2 --wit-package ../wit --wit-world control-center -o build/lwc_control_center.wasm main.go"
+build_command = "tinygo build -target=wasip2 --wit-package ../wit --wit-world control-center -o build/lwc_control_center.wasm main.go"
 build_artifact = "build/lwc_control_center.wasm"
 wit_world = "control_center"
 wasm_target = "wasm32-wasi-preview2"
