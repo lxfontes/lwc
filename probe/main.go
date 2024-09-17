@@ -8,8 +8,8 @@ import (
 
 	"github.com/bytecodealliance/wasm-tools-go/cm"
 	packetlooper "github.com/lxfontes/lwc/probe/internal/wasmcloud/lwc/packet-looper"
-	"go.wasmcloud.dev/component"
-	"go.wasmcloud.dev/component/lattice"
+	"go.wasmcloud.dev/component/log/wasilog"
+	"go.wasmcloud.dev/component/wasmcloud"
 )
 
 func probeReceive(packet uint64, ttl uint64, chaos uint16, route cm.Option[string]) {
@@ -22,7 +22,7 @@ func probeReceive(packet uint64, ttl uint64, chaos uint16, route cm.Option[strin
 	// Compute arrival time
 	srcTime := time.Unix(0, int64(packet))
 	delta := time.Since(srcTime).Milliseconds()
-	logger := component.ContextLogger("probe").With("packet", packet, "ttl", ttl, "route", target_route, "delta", delta)
+	logger := wasilog.ContextLogger("probe").With("packet", packet, "ttl", ttl, "route", target_route, "delta", delta)
 
 	logger.Info("packet seen", "action", "seen")
 
@@ -32,9 +32,9 @@ func probeReceive(packet uint64, ttl uint64, chaos uint16, route cm.Option[strin
 		return
 	}
 
-	// Forward to next hop
-	lattice.SetLinkName(target_route, cm.ToList([]lattice.CallTargetInterface{
-		lattice.NewCallTargetInterface("wasmcloud", "lwc", "packet-looper"),
+	// Point wasmcloud:lwc/packet-looper interface to the desired next hop and forward the packet
+	wasmcloud.SetLinkName(target_route, cm.ToList([]wasmcloud.CallTargetInterface{
+		wasmcloud.NewCallTargetInterface("wasmcloud", "lwc", "packet-looper"),
 	}))
 	packetlooper.Process(packet, ttl-1, chaos, route)
 

@@ -1,4 +1,6 @@
 #!/bin/bash
+set -e
+
 (cd probe && wash build)
 (cd control-center && wash build)
 wash push --insecure --allow-latest 127.0.0.1:5001/lwc_probe:latest probe/build/lwc_probe_s.wasm

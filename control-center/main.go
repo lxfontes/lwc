@@ -3,9 +3,7 @@ package main
 //go:generate wit-bindgen-go generate --world control-center --out internal ../wit
 
 import (
-	"embed"
 	"encoding/json"
-	"io/fs"
 	"net/http"
 	"strconv"
 	"time"
@@ -15,21 +13,7 @@ import (
 	"go.wasmcloud.dev/component/net/wasihttp"
 )
 
-//go:embed ui
-var staticAssets embed.FS
-
-func uiAssets() (fs.FS, error) {
-	return fs.Sub(staticAssets, "ui")
-}
-
 func init() {
-	mux := http.NewServeMux()
-
-	// ui, _ := uiAssets()
-	// fs := http.FileServer(http.FS(ui))
-	mux.Handle("/full-send", http.HandlerFunc(blastHandler))
-	//	mux.Handle("/", http.StripPrefix("/", fs))
-
 	wasihttp.Handle(http.HandlerFunc(blastHandler))
 }
 
